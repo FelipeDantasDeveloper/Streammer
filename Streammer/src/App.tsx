@@ -6,6 +6,63 @@ import {
 } from './services/chessApi'
 import type { Streamer } from './types/Streamer'
 
+function StreamerCard({ streamer }: { streamer: Streamer }) {
+  const channelUrl = streamer.youtubeUrl ?? streamer.platformUrl
+  const fallbackInitial = streamer.name?.trim().charAt(0).toUpperCase()
+    || streamer.username.charAt(0).toUpperCase()
+
+  return (
+    <article className="streamer-card">
+      <div className="streamer-avatar">
+        <span className="avatar-fallback" aria-hidden="true">
+          {fallbackInitial}
+        </span>
+        {streamer.avatar && (
+          <img
+            src={streamer.avatar}
+            alt={`Avatar de ${streamer.name || streamer.username}`}
+            onError={(event) => {
+              event.currentTarget.hidden = true
+            }}
+          />
+        )}
+      </div>
+
+      <div className="streamer-card-content">
+        <h3>{streamer.name || streamer.username}</h3>
+        <p className="streamer-username">@{streamer.username}</p>
+        <p className="streamer-country">
+          {streamer.country ? `País: ${streamer.country}` : 'País não informado'}
+        </p>
+
+        <div className="streamer-card-footer">
+          <span
+            className={`live-status ${streamer.isLive ? 'is-live' : 'is-offline'}`}
+            role="status"
+          >
+            <span className="status-dot" aria-hidden="true"></span>
+            {streamer.isLive ? 'Ao vivo' : 'Offline'}
+          </span>
+
+          {channelUrl ? (
+            <a
+              className="channel-link"
+              href={channelUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Abrir canal de ${streamer.name || streamer.username} em nova aba`}
+            >
+              Ver canal
+            </a>
+          ) : (
+            <span className="channel-unavailable">Canal não informado</span>
+          )}
+        </div>
+      </div>
+    </article>
+  )
+}
+
 function App() {
   const [streamers, setStreamers] = useState<Streamer[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -73,22 +130,36 @@ function App() {
         <section className="streamer-section" aria-labelledby="streamer-heading">
           <h2 id="streamer-heading">Streamers</h2>
           <div className="streamer-grid" aria-live="polite">
-            {isLoading && <p role="status">Carregando streamers...</p>}
+            {isLoading && (
+              <>
+                {[0, 1, 2, 3, 4, 5].map((item) => (
+                  <div className="streamer-skeleton" key={item} aria-hidden="true">
+                    <span className="skeleton-avatar"></span>
+                    <span className="skeleton-line skeleton-line-title"></span>
+                    <span className="skeleton-line skeleton-line-short"></span>
+                  </div>
+                ))}
+                <p className="sr-only" role="status">Carregando streamers...</p>
+              </>
+            )}
             {error && (
-              <div role="alert">
+              <div className="state-panel" role="alert">
                 <p>{error}</p>
-                <button type="button" onClick={() => setRetryCount((count) => count + 1)}>
+                <button
+                  className="retry-button"
+                  type="button"
+                  onClick={() => setRetryCount((count) => count + 1)}
+                >
                   Tentar novamente
                 </button>
               </div>
             )}
-            {!isLoading && !error && (
-              <p role="status">
-                {streamers.length === 0
-                  ? 'Nenhum streamer encontrado.'
-                  : `${streamers.length} streamers carregados.`}
-              </p>
+            {!isLoading && !error && streamers.length === 0 && (
+              <p className="state-panel" role="status">Nenhum streamer encontrado.</p>
             )}
+            {!isLoading && !error && streamers.map((streamer) => (
+              <StreamerCard key={streamer.username} streamer={streamer} />
+            ))}
           </div>
         </section>
       </main>

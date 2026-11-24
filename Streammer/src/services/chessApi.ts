@@ -3,6 +3,7 @@ import type { Streamer } from '../types/Streamer'
 const STREAMERS_URL = 'https://api.chess.com/pub/streamers'
 const REQUEST_TIMEOUT_MS = 10_000
 const PROFILE_CONCURRENT_REQUESTS = 5
+const countryCache = new Map<string, Promise<string | undefined>>()
 
 interface ChessStreamer {
   username?: unknown
@@ -76,16 +77,6 @@ function optionalString(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim() ? value.trim() : undefined
 }
 
-function extractCountry(value: unknown): string | undefined {
-  if (typeof value !== 'string') return undefined
-
-  const trimmed = value.trim()
-  if (!trimmed) return undefined
-
-  const lastSegment = trimmed.split('/').filter(Boolean).at(-1)
-  return lastSegment?.toUpperCase()
-}
-
 async function fetchJson(
   url: string,
   signal: AbortSignal,
@@ -137,7 +128,30 @@ async function fetchCountry(
     if (!isRecord(data)) return undefined
 
     const player = data as ChessPlayerResponse
-    return extractCountry(player.country)
+    if (typeof player.country !== 'string') return undefined
+
+    const countryUrl = player.country.trim()
+    if (!countryUrl) return undefined
+
+    const cachedCountry = countryCache.get(countryUrl)
+    if (cachedCountry) return cachedCountry
+
+    const countryRequest = (async () => {
+      try {
+        const countryData = await fetchJson(countryUrl, signal)
+        if (!isRecord(countryData)) return undefined
+
+        return typeof countryData.name === 'string' &&
+          countryData.name.trim()
+          ? countryData.name.trim()
+          : undefined
+      } catch {
+        return undefined
+      }
+    })()
+
+    countryCache.set(countryUrl, countryRequest)
+    return countryRequest
   } catch (error) {
     if (signal.aborted) throw error
     return undefined
