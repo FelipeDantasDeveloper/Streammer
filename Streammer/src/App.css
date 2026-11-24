@@ -93,6 +93,18 @@
   outline-offset: 1px;
 }
 
+.search-controls .search-input-error {
+  border-color: var(--error);
+  outline: 3px solid rgba(217, 83, 79, 0.24);
+  outline-offset: 1px;
+}
+
+.search-error {
+  color: #ff8a86;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
 .search-controls button {
   border: 1px solid transparent;
   background: var(--accent);
@@ -104,6 +116,11 @@
 
 .search-controls button:hover {
   background: var(--accent-hover);
+}
+
+.search-controls button:disabled {
+  cursor: wait;
+  opacity: 0.72;
 }
 
 .search-controls button:focus-visible {

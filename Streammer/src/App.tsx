@@ -1,5 +1,6 @@
 import './App.css'
 import { useEffect, useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import {
   fetchStreamers,
   getChessApiErrorMessage,
@@ -68,6 +69,9 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string>()
   const [retryCount, setRetryCount] = useState(0)
+  const [searchText, setSearchText] = useState('')
+  const [submittedSearch, setSubmittedSearch] = useState('')
+  const [searchError, setSearchError] = useState('')
 
   useEffect(() => {
     const controller = new AbortController()
@@ -99,6 +103,33 @@ function App() {
     }
   }, [retryCount])
 
+  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const trimmedSearch = searchText.trim()
+    if (!trimmedSearch) {
+      setSearchError('Campo de pesquisa vazio')
+      return
+    }
+
+    setSearchError('')
+    setSubmittedSearch(trimmedSearch)
+  }
+
+  function handleSearchChange(event: ChangeEvent<HTMLInputElement>) {
+    setSearchText(event.target.value)
+    if (searchError) {
+      setSearchError('')
+    }
+  }
+
+  const normalizedSearch = submittedSearch.toLocaleLowerCase()
+  const visibleStreamers = submittedSearch
+    ? streamers.filter((streamer) =>
+        streamer.username.toLocaleLowerCase().includes(normalizedSearch),
+      )
+    : streamers
+
   return (
     <div className="app-shell">
       <header className="site-header">
@@ -112,7 +143,7 @@ function App() {
       <main className="main-content">
         <section className="search-section" aria-labelledby="page-title">
           <h1 id="page-title">Streamers de xadrez</h1>
-          <form className="search-form" role="search" onSubmit={(event) => event.preventDefault()}>
+          <form className="search-form" role="search" onSubmit={handleSearchSubmit}>
             <label htmlFor="streamer-search">Pesquisar streamer</label>
             <div className="search-controls">
               <input
@@ -121,9 +152,21 @@ function App() {
                 type="search"
                 placeholder="Nome do streamer"
                 autoComplete="off"
+                value={searchText}
+                onChange={handleSearchChange}
+                aria-invalid={searchError ? 'true' : 'false'}
+                aria-describedby={searchError ? 'search-error' : undefined}
+                className={searchError ? 'search-input-error' : undefined}
               />
-              <button type="submit">Pesquisar</button>
+              <button type="submit" disabled={isLoading}>
+                {isLoading ? 'Carregando...' : 'Pesquisar'}
+              </button>
             </div>
+            {searchError && (
+              <p id="search-error" className="search-error" role="alert">
+                {searchError}
+              </p>
+            )}
           </form>
         </section>
 
@@ -154,10 +197,15 @@ function App() {
                 </button>
               </div>
             )}
-            {!isLoading && !error && streamers.length === 0 && (
+            {!isLoading && !error && streamers.length === 0 && !submittedSearch && (
               <p className="state-panel" role="status">Nenhum streamer encontrado.</p>
             )}
-            {!isLoading && !error && streamers.map((streamer) => (
+            {!isLoading && !error && submittedSearch && visibleStreamers.length === 0 && (
+              <p className="state-panel" role="status">
+                Nenhum streamer encontrado para "{submittedSearch}".
+              </p>
+            )}
+            {!isLoading && !error && visibleStreamers.map((streamer) => (
               <StreamerCard key={streamer.username} streamer={streamer} />
             ))}
           </div>
