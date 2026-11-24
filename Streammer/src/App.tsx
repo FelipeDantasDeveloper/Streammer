@@ -132,6 +132,9 @@ function App() {
 
   return (
     <div className="app-shell">
+      <a className="skip-link" href="#main-content">
+        Pular para o conteúdo
+      </a>
       <header className="site-header">
         <div className="header-content">
           <a className="brand" href="/" aria-label="Streammer - início">
@@ -140,7 +143,7 @@ function App() {
         </div>
       </header>
 
-      <main className="main-content">
+      <main className="main-content" id="main-content">
         <section className="search-section" aria-labelledby="page-title">
           <h1 id="page-title">Streamers de xadrez</h1>
           <form className="search-form" role="search" onSubmit={handleSearchSubmit}>
