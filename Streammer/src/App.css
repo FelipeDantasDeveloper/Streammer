@@ -1,0 +1,153 @@
+.app-shell {
+  min-height: 100svh;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-header);
+}
+
+.header-content,
+.main-content {
+  width: min(var(--content-width), calc(100% - 2 * var(--page-gutter)));
+  margin-inline: auto;
+}
+
+.header-content {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  color: var(--text-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.brand:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 5px;
+  border-radius: 4px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-block: 48px 64px;
+}
+
+.search-section {
+  display: grid;
+  gap: 24px;
+}
+
+.search-section h1 {
+  margin: 0;
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.search-form label {
+  color: var(--text-heading);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.search-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.search-controls input,
+.search-controls button {
+  min-height: 48px;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.search-controls input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-heading);
+  padding-inline: 16px;
+}
+
+.search-controls input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-controls input:focus-visible {
+  border-color: var(--focus);
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.search-controls button {
+  border: 1px solid transparent;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+  padding-inline: 20px;
+  cursor: pointer;
+}
+
+.search-controls button:hover {
+  background: var(--accent-hover);
+}
+
+.search-controls button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.streamer-section {
+  display: grid;
+  gap: 16px;
+}
+
+.streamer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  min-height: 1px;
+}
+
+@media (max-width: 900px) {
+  .streamer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .header-content {
+    min-height: 64px;
+  }
+
+  .main-content {
+    gap: 32px;
+    padding-block: 32px 48px;
+  }
+
+  .search-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .search-controls button {
+    width: 100%;
+  }
+
+  .streamer-grid {
+    grid-template-columns: 1fr;
+  }
+}
