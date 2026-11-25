@@ -36,5 +36,8 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./Streammer/dist
+          
+      - name: Aguardar o artefato ficar disponível
+        run: sleep 10
 
       - uses: actions/deploy-pages@v4
